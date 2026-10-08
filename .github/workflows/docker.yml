@@ -1,0 +1,38 @@
+name: Docker - build e push
+
+on:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+env:
+  IMAGE: ghcr.io/gabrielbarrosferreira/hello-devops
+  TAG: "1.0"
+
+jobs:
+  build-e-push:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Baixar o codigo
+        uses: actions/checkout@v4
+
+      - name: Build da imagem
+        run: docker build -t "$IMAGE:$TAG" .
+
+      - name: Verificar a imagem
+        run: |
+          docker image inspect "$IMAGE:$TAG" > /dev/null
+          docker run -d --name teste -p 8080:8080 "$IMAGE:$TAG"
+          curl -sf --retry 10 --retry-connrefused --retry-delay 1 http://localhost:8080/hello
+          docker rm -f teste
+
+      - name: Login no GHCR
+        env:
+          REGISTRY_USERNAME: ${{ secrets.REGISTRY_USERNAME }}
+          REGISTRY_TOKEN: ${{ secrets.REGISTRY_TOKEN }}
+        run: echo "$REGISTRY_TOKEN" | docker login ghcr.io -u "$REGISTRY_USERNAME" --password-stdin
+
+      - name: Publicar a imagem
+        run: docker push "$IMAGE:$TAG"
