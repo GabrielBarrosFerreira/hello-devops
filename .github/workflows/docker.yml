@@ -9,7 +9,7 @@ permissions:
 
 env:
   IMAGE: ghcr.io/gabrielbarrosferreira/hello-devops
-  TAG: "1.0"
+  TAG: "2.0"
 
 jobs:
   build-e-push:
