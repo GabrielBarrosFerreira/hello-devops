@@ -25,7 +25,7 @@ jobs:
         run: |
           docker image inspect "$IMAGE:$TAG" > /dev/null
           docker run -d --name teste -p 8080:8080 "$IMAGE:$TAG"
-          curl -sf --retry 10 --retry-connrefused --retry-delay 1 http://localhost:8080/hello
+          curl -sSf --retry 10 --retry-all-errors --retry-delay 1 http://localhost:8080/hello
           docker rm -f teste
 
       - name: Login no GHCR
